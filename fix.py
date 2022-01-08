@@ -29,7 +29,7 @@ def comment_fix_suggestion(gh_token: str, repo_name: Union[str, int], pr_number:
                 if not change.old and fixed != change.line:
                     pr.create_comment(
                         body=f"""```suggestion\n{fixed}\n```""",
-                        commit_id=pr.get_commits()[0],
+                        commit_id=pr.get_commits()[-1],
                         path=file.filename,
                         position=None,
                         side="RIGHT",
