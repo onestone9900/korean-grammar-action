@@ -18,7 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: "맞춤법 검사"
-      uses: jckdotim/korean-grammar-action@v0.2.6
+      uses: onestone9900/korean-grammar-action@v0.0.1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PASSPORT_KEY: ${{ secrets.PASSPORT_KEY }}
 ```
