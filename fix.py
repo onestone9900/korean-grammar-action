@@ -9,15 +9,15 @@ from github import Github
 from whatthepatch import parse_patch
 
 
-def fix(original: str) -> str:
+def fix(original: str, passport_key: str) -> str:
     response = requests.get(
-        'https://m.search.naver.com/p/csearch/ocontent/util/SpellerProxy',
-        params=dict(q=original, color_blindness=0)
+        'https://search.naver.com/p/csearch/ocontent/util/SpellerProxy',
+        params=dict(q=original, color_blindness=0, passportKey=passport_key)
     )
     return html.unescape(response.json()['message']['result']['notag_html'])
 
 
-def comment_fix_suggestion(gh_token: str, repo_name: Union[str, int], pr_number: int, target: str) -> None:
+def comment_fix_suggestion(gh_token: str, repo_name: Union[str, int], pr_number: int, target: str, passport_key: str) -> None:
     g = Github(gh_token)
     pr = g.get_repo(repo_name).get_pull(pr_number)
     commits = pr.get_commits()
@@ -26,7 +26,7 @@ def comment_fix_suggestion(gh_token: str, repo_name: Union[str, int], pr_number:
             continue
         for diff in parse_patch(file.patch):
             for change in diff.changes:
-                fixed = fix(change.line)
+                fixed = fix(change.line, passport_key)
                 if not change.old and fixed != change.line:
                     pr.create_comment(
                         body=f"""```suggestion\n{fixed}\n```""",
@@ -45,5 +45,6 @@ if 'GITHUB_EVENT_PATH' in os.environ:
             gh_token=os.environ.get('GITHUB_TOKEN'),
             repo_name=os.environ.get('GITHUB_REPOSITORY'),
             pr_number=json_data['issue']['number'],
-            target=os.environ.get('INPUT_TARGET')
+            target=os.environ.get('INPUT_TARGET'),
+            passport_key=os.environ.get('PASSPORT_KEY')
         )
